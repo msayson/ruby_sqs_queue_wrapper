@@ -1,10 +1,9 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'sqs_queue/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'sqs_queue'
-  spec.version       = SqsQueue::VERSION
+  spec.version       = '0.1.0'
   spec.authors       = ['Mark Sayson']
   spec.email         = ['masayson@gmail.com']
 
