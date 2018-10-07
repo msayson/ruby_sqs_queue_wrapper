@@ -4,23 +4,9 @@ SqsQueue is a wrapper library for the AWS SQS SDK for Ruby, primarily written to
 
 This was written for educational purposes only and is not intended for production use.  This library is released under the MIT license, so feel free to reuse code samples for any purpose.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'sqs_queue'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install sqs_queue
-
 ## Usage
+
+Note: This gem has not been published, as it is currently intended for experimenting with the latest version of the AWS SDK.
 
 ```ruby
 require 'sqs_queue'
