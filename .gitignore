@@ -13,3 +13,6 @@
 # Workspace-specific files
 sqs_queue.sublime-project
 sqs_queue.sublime-workspace
+
+# Local environment files
+/config/local_env*.yml

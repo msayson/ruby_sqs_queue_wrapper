@@ -2,7 +2,7 @@
 
 SqsQueue is a wrapper library for the AWS SQS SDK for Ruby, primarily written to test and verify behaviour.
 
-This was written for educational purposes only and is not intended for production use, however, you may reuse code samples for any purpose.
+This was written for educational purposes only and is not intended for production use.  This library is released under the MIT license, so feel free to reuse code samples for any purpose.
 
 ## Installation
 
@@ -22,13 +22,42 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'sqs_queue'
+
+# SqsQueue retrieves AWS credentials from environment variables specified by the caller.
+#
+# Eg. If you set access_id_var: 'AwsAccessIdEnvVar', SqsQueue will retrieve the access ID
+# by calling ENV.fetch('AwsAccessIdEnvVar').
+#
+# This avoids storing credentials in source code while allowing multiple SQS queues to be
+# initialized with different credentials.
+queue = SqsQueue.new(
+  queue_url: 'https://sqs.us-west-2.amazonaws.com/123456789012/YourQueueName',
+  aws_region: 'us-west-2',
+  access_id_var: 'AwsAccessIdEnvVar',
+  secret_key_var: 'AwsSecretKeyEnvVar'
+)
+
+# Send a message with the given body to the SQS queue.
+queue.send_message('Test message')
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `sqs_queue.gemspec`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To run unit tests, run `rake spec`. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To run integration tests against a live SQS queue, create a YAML file named config/local_env_integ.yml with the values updated to match your SQS queue and AWS credentials, and run `rake integ`.
+
+Example config/local_env_integ.yml contents:
+```yaml
+SqsQueueIntegTests_QueueUrl: 'YourQueueUrl'
+SqsQueueIntegTests_QueueRegion: 'YourAwsRegion'
+SqsQueueIntegTests_AccessId: 'YourAwsAccessId'
+SqsQueueIntegTests_SecretKey: 'YourAwsSecretKey'
+```
 
 ## License
 
