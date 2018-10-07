@@ -2,13 +2,13 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
-  spec.name          = 'sqs_queue'
+  spec.name          = 'ruby_sqs_queue_wrapper'
   spec.version       = '0.1.0'
   spec.authors       = ['Mark Sayson']
   spec.email         = ['masayson@gmail.com']
 
   spec.summary       = 'A wrapper library for the AWS SQS queue.'
-  spec.homepage      = 'https://github.com/msayson/sqs_queue'
+  spec.homepage      = 'https://github.com/msayson/ruby_sqs_queue_wrapper'
   spec.license       = 'MIT'
 
   # Specify which files should be added to the gem when it is released.
