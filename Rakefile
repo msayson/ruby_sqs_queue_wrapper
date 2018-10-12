@@ -18,6 +18,8 @@ RuboCop::RakeTask.new
 task spec: :rubocop
 task integ: :rubocop
 
+task default: %i[rubocop spec]
+
 private
 
 # Load ENV variables for integration tests

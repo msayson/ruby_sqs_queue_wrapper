@@ -27,6 +27,13 @@ queue = SqsQueue.new(
 
 # Send a message with the given body to the SQS queue.
 queue.send_message('Test message')
+
+# Retrieve a single message from the queue if one exists.
+message = queue.receive_single_message
+
+# Retrieve up to max_count messages from the queue, where max_count is an Integer from 1 to 10.
+max_count = 5
+messages = queue.receive_messages(max_count)
 ```
 
 ## Development
