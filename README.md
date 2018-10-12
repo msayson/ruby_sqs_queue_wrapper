@@ -1,5 +1,7 @@
 # SqsQueue
 
+[<img src="https://travis-ci.org/msayson/ruby_sqs_queue_wrapper.svg?branch=master" alt="Build Status" />](https://travis-ci.org/msayson/ruby_sqs_queue_wrapper)
+
 SqsQueue is a wrapper library for the AWS SQS SDK for Ruby, primarily written to test and verify behaviour.
 
 This was written for educational purposes only and is not intended for production use.  This library is released under the MIT license, so feel free to reuse code samples for any purpose.
