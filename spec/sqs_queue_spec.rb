@@ -1,3 +1,5 @@
+require 'shared_examples/authenticated_sqs_query'
+
 RSpec.describe SqsQueue do
   let(:queue_url) { 'https://sqs.us-west-2.amazonaws.com/123456789012/QueueName' }
   let(:aws_region) { 'us-west-2' }
@@ -44,38 +46,104 @@ RSpec.describe SqsQueue do
       end
     end
 
-    shared_examples 'a query with invalid credentials' do
-      it 'should raise a SqsQueue::AuthenticationError error' do
+    it_behaves_like 'an authenticated SQS query' do
+      let(:client_method) { :send_message }
+      let(:client_method_params) { { queue_url: queue_url, message_body: message } }
+      let(:local_method) { :send_message }
+      let(:local_params) { message }
+    end
+  end
+
+  describe '#receive_single_message' do
+    context 'when the SQS queue is empty' do
+      let!(:stub_sqs) do
         allow_any_instance_of(Aws::SQS::Client)
-          .to receive(:send_message)
-          .with(queue_url: queue_url, message_body: message)
-          .and_raise(sqs_error)
+          .to receive(:receive_message)
+          .with(queue_url: queue_url, max_number_of_messages: 1)
+          .and_return(double('SQS response', messages: Aws::Xml::DefaultList.new))
+      end
 
-        expect { queue.send_message(message) }
-          .to raise_error(SqsQueue::AuthenticationError)
+      it 'should return nil' do
+        expect(queue.receive_single_message).to be_nil
       end
     end
 
-    context 'when SQS raises an Aws::SQS::Errors::InvalidClientTokenId error' do
-      it_behaves_like 'a query with invalid credentials' do
-        let(:sqs_error) do
-          Aws::SQS::Errors::InvalidClientTokenId.new(
-            'RequestContext',
-            'The security token included in the request is invalid.'
-          )
+    context 'when there are messages in the SQS queue' do
+      let(:messages) do
+        (1..2).map { Aws::SQS::Types::Message.new(message_id: SecureRandom.uuid) }
+      end
+
+      let!(:stub_sqs) do
+        allow_any_instance_of(Aws::SQS::Client)
+          .to receive(:receive_message)
+          .with(queue_url: queue_url, max_number_of_messages: 1)
+          .and_return(double('SQS response', messages: Aws::Xml::DefaultList.new(messages)))
+      end
+
+      it 'should return a SQS message' do
+        expect(queue.receive_single_message).to be_a(Aws::SQS::Types::Message)
+      end
+    end
+
+    it_behaves_like 'an authenticated SQS query' do
+      let(:client_method) { :receive_message }
+      let(:client_method_params) { { queue_url: queue_url, max_number_of_messages: 1 } }
+      let(:local_method) { :receive_single_message }
+      let(:local_params) { nil }
+    end
+  end
+
+  describe '#receive_messages' do
+    let(:valid_max_count) { 2 }
+
+    context 'when parameters are valid' do
+      context 'when the SQS queue is empty' do
+        let!(:stub_sqs) do
+          allow_any_instance_of(Aws::SQS::Client)
+            .to receive(:receive_message)
+            .with(queue_url: queue_url, max_number_of_messages: valid_max_count)
+            .and_return(double('SQS response', messages: Aws::Xml::DefaultList.new))
+        end
+
+        it 'should return an empty collection' do
+          expect(queue.receive_messages(valid_max_count)).to be_empty
+        end
+      end
+
+      context 'when there are messages in the SQS queue' do
+        let(:messages) do
+          (1..2).map { Aws::SQS::Types::Message.new(message_id: SecureRandom.uuid) }
+        end
+
+        let!(:stub_sqs) do
+          allow_any_instance_of(Aws::SQS::Client)
+            .to receive(:receive_message)
+            .with(queue_url: queue_url, max_number_of_messages: valid_max_count)
+            .and_return(double('SQS response', messages: Aws::Xml::DefaultList.new(messages)))
+        end
+
+        it 'should return a non-empty collection of SQS messages' do
+          response = queue.receive_messages(valid_max_count)
+          expect(response.length).to eq(messages.length)
+          expect(response.first).to be_a(Aws::SQS::Types::Message)
         end
       end
     end
 
-    context 'when SQS raises an Aws::SQS::Errors::SignatureDoesNotMatch error' do
-      it_behaves_like 'a query with invalid credentials' do
-        let(:sqs_error) do
-          Aws::SQS::Errors::SignatureDoesNotMatch.new(
-            'RequestContext',
-            'ErrorMessage'
-          )
+    context 'when parameters are invalid' do
+      it 'should raise an ArgumentError' do
+        [nil, '', 0, 11].each do |invalid_max_count|
+          expect { queue.receive_messages(invalid_max_count) }
+            .to raise_error(ArgumentError)
         end
       end
+    end
+
+    it_behaves_like 'an authenticated SQS query' do
+      let(:client_method) { :receive_message }
+      let(:client_method_params) { { queue_url: queue_url, max_number_of_messages: valid_max_count } }
+      let(:local_method) { :receive_messages }
+      let(:local_params) { valid_max_count }
     end
   end
 end
